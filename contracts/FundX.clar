@@ -130,3 +130,41 @@
 ;; ============================================
 ;; These functions can be called by users and modify the blockchain state
 
+;; CREATE A NEW CROWDFUNDING CAMPAIGN
+;; Parameters:
+;;   - goal: target amount to raise (in USDCx)
+;;   - duration: how long campaign runs (in blocks, ~10 min per block)
+;; Returns: new campaign ID
+(define-public (create-campaign (goal uint) (duration uint))
+    (let
+        (
+            ;; Generate new unique campaign ID
+            (campaign-id (+ (var-get campaign-nonce) u1))
+            ;; Calculate when campaign ends (current block + duration)
+            (deadline (+ block-height duration))
+        )
+        ;; Make sure goal is greater than 0
+        (asserts! (> goal u0) err-invalid-amount)
+        ;; Make sure duration is greater than 0
+        (asserts! (> duration u0) err-invalid-duration)
+        
+        ;; Save the new campaign to the blockchain
+        (map-set campaigns campaign-id
+            {
+                creator: tx-sender,        ;; Who created this campaign
+                goal: goal,                ;; Fundraising goal
+                deadline: deadline,        ;; When it ends
+                total-raised: u0,          ;; Starts at 0
+                withdrawn: false,          ;; Funds not withdrawn yet
+                active: true              ;; Campaign is active
+            }
+        )
+        
+        ;; Update the campaign counter
+        (var-set campaign-nonce campaign-id)
+        
+        ;; Return the new campaign ID
+        (ok campaign-id)
+    )
+)
+
