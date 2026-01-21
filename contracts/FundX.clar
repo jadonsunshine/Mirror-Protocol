@@ -4,6 +4,8 @@
 ;; This contract allows users to create crowdfunding campaigns,
 ;; donate in USDCx stablecoin, and withdraw funds when goals are met.
 ;; Platform charges a 2% fee on successful campaigns.
+;; 
+;; Built with Clarity 4
 
 ;; ============================================
 ;; CONSTANTS - Fixed values that never change
@@ -24,6 +26,7 @@
 (define-constant err-invalid-duration (err u108))    ;; Duration must be greater than 0
 (define-constant err-goal-reached (err u109))        ;; Goal already reached, can't donate more
 (define-constant err-already-withdrawn (err u110))   ;; Funds already withdrawn
+(define-constant err-allowance-violated (err u111))  ;; Asset transfer allowance violated
 
 ;; Platform fee settings
 (define-constant platform-fee-percent u2)   ;; 2% fee
@@ -54,7 +57,7 @@
     {
         creator: principal,      ;; Wallet address of who created the campaign
         goal: uint,              ;; Target amount to raise (in USDCx)
-        deadline: uint,          ;; Block height when campaign ends
+        deadline: uint,          ;; Stacks block height when campaign ends
         total-raised: uint,      ;; How much has been donated so far
         withdrawn: bool,         ;; Has the creator withdrawn the funds?
         active: bool            ;; Is the campaign still accepting donations?
@@ -210,7 +213,7 @@
             (try! (contract-call? usdcx-token transfer 
                 actual-donation           ;; Amount to transfer
                 tx-sender                 ;; From the donor
-                (as-contract tx-sender)   ;; To this contract
+                current-contract          ;; To this contract (Clarity 4 syntax)
                 none))                    ;; No memo
             true  ;; If actual-donation is 0, just continue
         )
@@ -271,7 +274,7 @@
         
         ;; Can withdraw if EITHER:
         ;; 1. Goal has been reached, OR
-        ;; 2. Deadline has passed (even if goal not reached)
+        ;; 2. Deadline has passed (even if goal not reached) - Indiegogo style!
         (asserts! (or 
             (>= total-raised (get goal campaign))
             (>= stacks-block-height (get deadline campaign))
@@ -286,31 +289,41 @@
             (merge campaign { withdrawn: true, active: false })
         )
         
-        ;; TRANSFER FUNDS
+        ;; TRANSFER FUNDS using Clarity 4 as-contract? syntax
+        ;; This executes the transfers with the contract as the sender
+        ;; and verifies that asset allowances are respected
         
-        ;; Send platform fee (2%) to contract owner
-        (if (> platform-fee u0)
-            (try! (as-contract (contract-call? usdcx-token transfer 
-                platform-fee              ;; 2% fee
-                tx-sender                 ;; From contract
-                contract-owner            ;; To platform owner
-                none)))                   ;; No memo
-            true  ;; If fee is 0, just continue
+        (match (as-contract? 
+            ;; Grant allowance for the total amount we're transferring
+            ((with-ft usdcx-token total-raised))
+            
+            ;; Transfer platform fee (2%) to contract owner
+            (if (> platform-fee u0)
+                (try! (contract-call? usdcx-token transfer 
+                    platform-fee              ;; 2% fee
+                    current-contract          ;; From contract
+                    contract-owner            ;; To platform owner
+                    none))                    ;; No memo
+                true  ;; If fee is 0, just continue
+            )
+            
+            ;; Transfer remaining funds (98%) to campaign creator
+            (try! (contract-call? usdcx-token transfer 
+                creator-amount            ;; Amount after fee
+                current-contract          ;; From contract
+                (get creator campaign)    ;; To campaign creator
+                none))                    ;; No memo
+            
+            ;; Return the amounts
+            { 
+                total: total-raised,           ;; Total that was raised
+                fee: platform-fee,             ;; 2% platform fee
+                transferred: creator-amount    ;; Amount sent to creator
+            }
         )
-        
-        ;; Send remaining funds (98%) to campaign creator
-        (try! (as-contract (contract-call? usdcx-token transfer 
-            creator-amount            ;; Amount after fee
-            tx-sender                 ;; From contract
-            (get creator campaign)    ;; To campaign creator
-            none)))                   ;; No memo
-        
-        ;; Return success with breakdown of amounts
-        (ok { 
-            total: total-raised,           ;; Total that was raised
-            fee: platform-fee,             ;; 2% platform fee
-            transferred: creator-amount    ;; Amount sent to creator
-        })
+        success (ok success)
+        error-code (err err-allowance-violated)
+        )
     )
 )
 
