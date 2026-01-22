@@ -6,6 +6,7 @@
 ;; Platform charges a 2% fee on successful campaigns.
 ;; 
 ;; Built with Clarity 3
+;; Network: Stacks Testnet
 
 ;; ============================================
 ;; CONSTANTS - Fixed values that never change
@@ -40,6 +41,7 @@
 (define-data-var campaign-nonce uint u0)
 
 ;; USDCx token contract address on Stacks testnet
+;; NOTE: Replace with actual deployed USDCx contract address before deploying
 (define-constant usdcx-token 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.usdcx)
 
 ;; ============================================
@@ -343,4 +345,3 @@
         (ok true)
     )
 )
-
