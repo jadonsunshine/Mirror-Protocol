@@ -8,7 +8,7 @@ cache_dir = './.cache'
 [[project.requirements]]
 contract_id = 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.usdcx'
 
-[contracts.FundX]
+[contracts.FundX-test]
 path = 'contracts/FundX.clar'
 clarity_version = 3
 epoch = 'latest'
