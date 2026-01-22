@@ -40,8 +40,6 @@
 ;; Starts at 0, increments by 1 for each new campaign
 (define-data-var campaign-nonce uint u0)
 
-;; NOTE: Replace this with the actual USDCx SIP-010 token contract principal
-;; This is the stablecoin used for all donations
 ;; USDCx token contract address on Stacks testnet
 (define-constant usdcx-token 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.usdcx)
 
@@ -293,7 +291,7 @@
         ;; This executes the transfers with the contract as the sender
         ;; and verifies that asset allowances are respected
         
-        (match (as-contract? 
+        (ok (unwrap! (as-contract? 
             ;; Grant allowance for the total amount we're transferring
             ((with-ft usdcx-token total-raised))
             
@@ -320,10 +318,7 @@
                 fee: platform-fee,             ;; 2% platform fee
                 transferred: creator-amount    ;; Amount sent to creator
             }
-        )
-        success (ok success)
-        error-code (err err-allowance-violated)
-        )
+        ) err-allowance-violated))
     )
 )
 
