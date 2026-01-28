@@ -1,0 +1,51 @@
+import { Card } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
+
+interface CampaignCardProps {
+  title: string
+  description: string
+  raised: number
+  goal: number
+  image: string
+}
+
+export function CampaignCard({ title, description, raised, goal, image }: CampaignCardProps) {
+  const percentage = Math.min((raised / goal) * 100, 100)
+
+  return (
+    <Card className="group relative overflow-hidden rounded-3xl border-none bg-white p-6 shadow-soft-md transition-all duration-300 hover:-translate-y-1 hover:shadow-soft-xl">
+      {/* Image Area */}
+      <div className="relative mb-6 h-48 w-full overflow-hidden rounded-2xl bg-slate-100">
+         {/* Placeholder for real image, using a div for now if image fails */}
+         <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+            [Campaign Image]
+         </div>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-4">
+        <div>
+            <h3 className="text-xl font-bold text-slate-900">{title}</h3>
+            <p className="text-sm text-slate-500 line-clamp-2 mt-2">{description}</p>
+        </div>
+
+        {/* Progress Section */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm font-medium">
+            <span className="text-indigo-600">${raised.toLocaleString()} USDC</span>
+            <span className="text-slate-400">of ${goal.toLocaleString()}</span>
+          </div>
+          {/* Customizing progress bar to be thicker and rounder */}
+          <Progress value={percentage} className="h-3 rounded-full bg-slate-100" />
+        </div>
+
+        {/* Action Button */}
+        <Button className="w-full rounded-xl bg-indigo-600 py-6 text-base font-semibold shadow-glow hover:bg-indigo-700 transition-all">
+          Donate Now
+        </Button>
+      </div>
+    </Card>
+  )
+}
