@@ -42,7 +42,7 @@ export function CampaignCard({ title, description, raised, goal, image }: Campai
         </div>
 
         {/* Action Button */}
-        <Button className="w-full rounded-xl bg-gradient-tush. py-6 text-base font-semibold shadow-glow hover:bg-indigo-700 transition-all">
+        <Button className="w-full rounded-xl bg-gradient-tush py-6 text-base font-semibold shadow-glow hover:bg-indigo-700 transition-all">
           Donate Now
         </Button>
       </div>

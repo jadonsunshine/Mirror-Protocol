@@ -10,7 +10,7 @@ export function Navbar() {
         
         {/* 1. Logo */}
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-gradient-tush. flex items-center justify-center text-white font-bold">
+          <div className="h-8 w-8 rounded-full bg-gradient-tush flex items-center justify-center text-white font-bold">
             F
           </div>
           <span className="font-bold text-slate-900">FundX</span>
