@@ -38,11 +38,7 @@ export function Hero() {
           {/* Line 3: "[Icon] Economy [Switch]" */}
           {/* FIX: The Switch is now INSIDE this flex container so it stays aligned */}
           <span className="inline-flex items-center flex-wrap justify-center gap-x-4 gap-y-2">
-             <span className="inline-flex align-middle">
-               <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-2xl shadow-soft-md rotate-12 flex items-center justify-center text-3xl border border-slate-100 relative z-10 hover:rotate-0 transition-transform duration-300">
-                  💰
-               </div>
-            </span>
+            
             <span>Economy.</span>
             
             {/* The Switch (Aligned & Rebranded) */}

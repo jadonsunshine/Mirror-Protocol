@@ -34,7 +34,7 @@ export function CampaignCard({ title, description, raised, goal, image }: Campai
         {/* Progress Section */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm font-medium">
-            <span className="text-indigo-600">${raised.toLocaleString()} USDC</span>
+        <span className="text-primary font-bold">${raised.toLocaleString()} USDC</span>
             <span className="text-slate-400">of ${goal.toLocaleString()}</span>
           </div>
           {/* Customizing progress bar to be thicker and rounder */}
