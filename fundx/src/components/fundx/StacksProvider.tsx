@@ -1,69 +1,78 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
-import { AppConfig, UserSession, UserData } from "@stacks/connect"
+
+interface WalletData {
+  stxAddress: string
+  btcAddress?: string
+}
 
 interface StacksContextValue {
-  userSession: UserSession
-  userData: UserData | null
-  authenticate: () => void
+  walletData: WalletData | null
+  authenticate: () => Promise<void>
   signOut: () => void
   isSignedIn: boolean
 }
 
 const StacksContext = createContext<StacksContextValue | undefined>(undefined)
 
-// Configure the app once
-const appConfig = new AppConfig(["store_write", "publish_data"])
-export const userSession = new UserSession({ appConfig })
-
 export function StacksProvider({ children }: { children: ReactNode }) {
-  const [userData, setUserData] = useState<UserData | null>(null)
+  const [walletData, setWalletData] = useState<WalletData | null>(null)
   const [isSignedIn, setIsSignedIn] = useState(false)
 
+  // Check connection status on mount
   useEffect(() => {
-    if (userSession.isUserSignedIn()) {
-      setUserData(userSession.loadUserData())
-      setIsSignedIn(true)
-    } else if (userSession.isSignInPending()) {
-      userSession.handlePendingSignIn().then((userData) => {
-        setUserData(userData)
-        setIsSignedIn(true)
-      })
+    const checkConnection = async () => {
+      try {
+        const { isConnected, getLocalStorage } = await import("@stacks/connect")
+        if (isConnected()) {
+          const data = getLocalStorage()
+          if (data?.addresses?.stx?.[0]?.address) {
+            setWalletData({
+              stxAddress: data.addresses.stx[0].address,
+              btcAddress: data.addresses.btc?.[0]?.address,
+            })
+            setIsSignedIn(true)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to check connection:", error)
+      }
     }
+    checkConnection()
   }, [])
 
-  // THE FIX: Import 'showConnect' dynamically at runtime
   const authenticate = async () => {
     try {
-      // This bypasses the bundler issue by loading the module only when clicked
-      const { showConnect } = await import("@stacks/connect")
+      const { connect } = await import("@stacks/connect")
       
-      showConnect({
-        appDetails: {
-          name: "FundX",
-          icon: typeof window !== "undefined" ? window.location.origin + "/logo.png" : "",
-        },
-        redirectTo: "/",
-        onFinish: () => {
-          window.location.reload()
-        },
-        userSession,
-      })
+      const response = await connect()
+      
+      if (response?.addresses?.stx?.[0]?.address) {
+        setWalletData({
+          stxAddress: response.addresses.stx[0].address,
+          btcAddress: response.addresses.btc?.[0]?.address,
+        })
+        setIsSignedIn(true)
+      }
     } catch (error) {
-      console.error("Failed to load wallet connect:", error)
+      console.error("Failed to connect wallet:", error)
     }
   }
 
-  const signOut = () => {
-    userSession.signUserOut()
-    setUserData(null)
-    setIsSignedIn(false)
-    window.location.reload()
+  const signOut = async () => {
+    try {
+      const { disconnect } = await import("@stacks/connect")
+      disconnect()
+      setWalletData(null)
+      setIsSignedIn(false)
+    } catch (error) {
+      console.error("Failed to disconnect:", error)
+    }
   }
 
   return (
-    <StacksContext.Provider value={{ userSession, userData, authenticate, signOut, isSignedIn }}>
+    <StacksContext.Provider value={{ walletData, authenticate, signOut, isSignedIn }}>
       {children}
     </StacksContext.Provider>
   )
