@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, use } from "react" // <--- 1. Import 'use'
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/fundx/Navbar"
@@ -15,18 +15,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Clock, Users, ShieldCheck, Share2, MapPin, ArrowLeft } from "lucide-react" 
 import { useStacks } from "@/components/fundx/StacksProvider"
 import { toast } from "sonner"
-
-// IMPORT DATA SOURCE
 import { getCampaign } from "@/lib/data"
 
-export default function CampaignPage({ params }: { params: { id: string } }) {
+// 2. Update Type Definition to Promise
+export default function CampaignPage({ params }: { params: Promise<{ id: string }> }) {
   const { isSignedIn, authenticate } = useStacks()
   const [donateAmount, setDonateAmount] = useState("")
 
-  // 1. FETCH CAMPAIGN DATA
-  const campaign = getCampaign(params.id)
+  // 3. Unwrap the params using 'use()'
+  const { id } = use(params)
+  
+  // Now we can use the ID safely
+  const campaign = getCampaign(id)
 
-  // 2. HANDLE 404 (If ID is invalid)
   if (!campaign) {
     return notFound()
   }
@@ -43,7 +44,6 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
       return
     }
     
-    // TODO: Smart Contract Call goes here
     toast.success("Transaction Initiated", { 
       description: `Contributing ${donateAmount} STX to ${campaign.title}` 
     })
@@ -124,15 +124,13 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
               <TabsContent value="story" className="prose prose-slate prose-lg max-w-none text-slate-600">
                 <p>{campaign.description}</p>
                 <p>
-                  We are building the future of the Bitcoin economy. By leveraging Stacks, we can 
-                  activate trillions of dollars of dormant capital. Join us in this revolution.
+                  This is the full story of the campaign. In a real app, this would be rich text content loaded from the database.
                 </p>
                 
                 <div className="bg-orange-50 p-6 rounded-2xl border border-orange-100 my-8 not-prose">
                   <h4 className="font-bold text-orange-800 mb-2">Risks & Challenges</h4>
                   <p className="text-orange-700/80 text-sm">
                     All projects involve risk. Please do your own research (DYOR) before contributing.
-                    Smart contracts are audited but experimental.
                   </p>
                 </div>
               </TabsContent>
