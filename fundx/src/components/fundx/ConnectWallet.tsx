@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { useConnect } from "@stacks/connect-react" // <--- The React Hook
-import { userSession } from "@/components/fundx/StacksProvider" // <--- Import session from Provider
+import { useStacks } from "@/components/fundx/StacksProvider"
 
 export function ConnectWallet() {
-  const { doOpenAuth } = useConnect() // <--- The function that replaces 'authenticate'
+  const { authenticate, signOut, isSignedIn, userData } = useStacks()
   const [mounted, setMounted] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
 
   useEffect(() => {
     setMounted(true)
-    if (userSession.isUserSignedIn()) {
-      setAddress(userSession.loadUserData().profile.stxAddress.testnet)
+    if (isSignedIn && userData) {
+      // Use Testnet address for dev, Mainnet for prod
+      setAddress(userData.profile.stxAddress.testnet) 
     }
-  }, [])
+  }, [isSignedIn, userData])
 
   if (!mounted) {
     return (
@@ -25,14 +25,11 @@ export function ConnectWallet() {
     )
   }
 
-  // 1. Logged In
+  // 1. Logged In -> Show Address
   if (address) {
     return (
       <Button 
-        onClick={() => {
-          userSession.signUserOut()
-          window.location.reload()
-        }}
+        onClick={signOut}
         className="rounded-full bg-gradient-tush text-white shadow-glow hover:opacity-90 hover:scale-105 transition-all px-6 font-bold tracking-tight"
       >
         {address.slice(0, 4)}...{address.slice(-4)}
@@ -40,10 +37,10 @@ export function ConnectWallet() {
     )
   }
 
-  // 2. Logged Out
+  // 2. Logged Out -> Show Connect
   return (
     <Button 
-      onClick={() => doOpenAuth()} // <--- Use the hook function
+      onClick={authenticate}
       className="rounded-full bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/20 px-6"
     >
       Connect Wallet
