@@ -19,8 +19,8 @@ export function Navbar() {
         {/* Links */}
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-500">
           <Link href="/explore" className="hover:text-primary transition-colors">Campaigns</Link>
-          <Link href="/#how-it-works" className="hover:text-primary transition-colors">How it works</Link>
           <Link href="/create" className="hover:text-primary transition-colors">Create Campaign</Link>
+          <Link href="#bridge" className="hover:text-primary transition-colors">Bridge</Link>
         </div>
 
         {/* Wallet Button */}
