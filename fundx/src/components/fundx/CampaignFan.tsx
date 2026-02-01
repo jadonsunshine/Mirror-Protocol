@@ -8,16 +8,16 @@ export function CampaignFan() {
   const leftCard = sideCampaigns[0];
   const rightCard = sideCampaigns[1];
 
-  // Helper for progress calculation
+
   const getProgress = (raised: number, goal: number) => Math.min((raised/goal)*100, 100);
 
   return (
     <div className="flex flex-col xl:flex-row justify-center items-center xl:items-stretch gap-6 h-auto xl:h-[420px]">
       
-      {/* 1. LEFT CARD (Component-ized inline for modularity) */}
+   
       <SideCard campaign={leftCard} tilt="left" progress={getProgress(leftCard.raised, leftCard.goal)} />
 
-      {/* 2. HERO CARD (Center) */}
+   
       <div className="w-full max-w-3xl xl:flex-1 relative z-20 shadow-2xl rounded-[2rem] border border-slate-100 bg-white hover:border-orange-200 transition-all duration-300 flex flex-col md:flex-row overflow-hidden group">
           <div className="absolute top-4 left-4 z-30 bg-gradient-tush text-white px-4 py-1 rounded-full text-xs font-bold shadow-soft-xl animate-pulse">
             🔥 Top Trending
@@ -61,14 +61,14 @@ export function CampaignFan() {
           </div>
       </div>
       
-      {/* 3. RIGHT CARD */}
+   
       <SideCard campaign={rightCard} tilt="right" progress={getProgress(rightCard.raised, rightCard.goal)} />
 
     </div>
   )
 }
 
-// Sub-component for the side cards to keep code DRY
+
 function SideCard({ campaign, tilt, progress }: { campaign: Campaign, tilt: "left" | "right", progress: number }) {
   const tiltClass = tilt === "left" 
     ? "xl:transform xl:-rotate-6 xl:origin-bottom-right xl:translate-x-6 hover:translate-x-0" 
