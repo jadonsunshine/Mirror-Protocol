@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use } from "react" // <--- 1. Import 'use'
+import { useState, use } from "react" 
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/fundx/Navbar"
@@ -140,7 +140,7 @@ export default function CampaignPage({ params }: { params: Promise<{ id: string 
             </Tabs>
           </div>
 
-          {/* RIGHT COLUMN: Sticky Donation Card */}
+     
           <div className="relative h-full">
             <div className="sticky top-32 p-8 rounded-[2rem] bg-white border border-slate-200 shadow-xl">
               
