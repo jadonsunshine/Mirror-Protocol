@@ -16,11 +16,11 @@ export function LivePreview({ formData }: { formData: any }) {
                 raised={0}
                 goal={Number(formData.goal) || 10000}
                 image={formData.image}
-                // We will update CampaignCard later to handle "USDCx" label visually
+               
             />
         </div>
 
-        {/* Metadata Box */}
+       
         <div className="bg-white/50 backdrop-blur border border-slate-200 p-4 rounded-xl text-sm space-y-2 max-w-[320px] mx-auto mt-4">
             <p className="font-bold text-slate-900">Metadata Preview:</p>
             <div className="flex items-center gap-2 text-slate-500">

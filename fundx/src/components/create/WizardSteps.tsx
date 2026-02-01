@@ -15,7 +15,7 @@ interface WizardProps {
 
 export function WizardSteps({ step, formData, setFormData }: WizardProps) {
   
-  // STEP 1: IDENTITY
+
   if (step === 1) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
@@ -58,7 +58,6 @@ export function WizardSteps({ step, formData, setFormData }: WizardProps) {
     )
   }
 
-  // STEP 2: PROJECT
   if (step === 2) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -106,7 +105,7 @@ export function WizardSteps({ step, formData, setFormData }: WizardProps) {
     )
   }
 
-  // STEP 3: STORY
+
   if (step === 3) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -138,7 +137,6 @@ export function WizardSteps({ step, formData, setFormData }: WizardProps) {
     )
   }
 
-  // STEP 4: FUNDING (UPDATED TO USDCx)
   if (step === 4) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
