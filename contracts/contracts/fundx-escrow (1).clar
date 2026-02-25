@@ -26,19 +26,19 @@
 (define-constant PLATFORM-FEE-PERCENT  u2)
 (define-constant FEE-DENOMINATOR       u100)
 
-(define-constant ERR-NOT-FOUND          (err u100))
-(define-constant ERR-NOT-CREATOR        (err u101))
-(define-constant ERR-INACTIVE           (err u102))
-(define-constant ERR-EXPIRED            (err u103))
-(define-constant ERR-GOAL-NOT-REACHED   (err u104))
-(define-constant ERR-ALREADY-WITHDRAWN  (err u105))
-(define-constant ERR-INVALID-AMOUNT     (err u106))
+(define-constant ERR-NOT-FOUND         (err u100))
+(define-constant ERR-NOT-CREATOR       (err u101))
+(define-constant ERR-INACTIVE          (err u102))
+(define-constant ERR-EXPIRED           (err u103))
+(define-constant ERR-GOAL-NOT-REACHED  (err u104))
+(define-constant ERR-ALREADY-WITHDRAWN (err u105))
+(define-constant ERR-INVALID-AMOUNT    (err u106))
 (define-constant ERR-REFUND-NOT-ALLOWED (err u107))
-(define-constant ERR-NOT-DONOR          (err u108))
-(define-constant ERR-STILL-ACTIVE       (err u109))
-(define-constant ERR-INVALID-MODEL      (err u110))
-(define-constant ERR-TRANSFER-FAILED    (err u111))
-(define-constant ERR-NOT-OWNER          (err u112))
+(define-constant ERR-NOT-DONOR         (err u108))
+(define-constant ERR-STILL-ACTIVE      (err u109))
+(define-constant ERR-INVALID-MODEL     (err u110))
+(define-constant ERR-TRANSFER-FAILED   (err u111))
+(define-constant ERR-NOT-OWNER         (err u112))
 
 
 ;; -----------------------------------------------------------
@@ -128,6 +128,7 @@
           (is-eq funding-model ALL-OR-NOTHING))
       ERR-INVALID-MODEL
     )
+
     (let (
       (new-id   (+ (var-get campaign-nonce) u1))
       (deadline (+ block-height duration))
@@ -166,42 +167,39 @@
     (id     uint)
     (amount uint)
   )
-  (begin
-    (asserts! (and (> id u0) (<= id (var-get campaign-nonce))) ERR-NOT-FOUND)
+  (let (
+    (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
+  )
+    (asserts! (is-eq (contract-of token) USDCX-CONTRACT) ERR-TRANSFER-FAILED)
+    (asserts! (get active campaign)                       ERR-INACTIVE)
+    (asserts! (< block-height (get deadline campaign))    ERR-EXPIRED)
+    (asserts! (> amount u0)                               ERR-INVALID-AMOUNT)
+
+    ;; Transfer USDCx from donor to contract (escrow)
+    (unwrap!
+      (contract-call? token transfer amount tx-sender (as-contract tx-sender) none)
+      ERR-TRANSFER-FAILED
+    )
+
+    ;; Accumulate donor balance
     (let (
-      (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
+      (existing (default-to u0
+        (get amount (map-get? donations { campaign-id: id, donor: tx-sender }))
+      ))
     )
-      (asserts! (is-eq (contract-of token) USDCX-CONTRACT) ERR-TRANSFER-FAILED)
-      (asserts! (get active campaign)                       ERR-INACTIVE)
-      (asserts! (< block-height (get deadline campaign))    ERR-EXPIRED)
-      (asserts! (> amount u0)                               ERR-INVALID-AMOUNT)
-
-      ;; Transfer USDCx from donor to contract (escrow)
-      (unwrap!
-        (contract-call? token transfer amount tx-sender (as-contract tx-sender) none)
-        ERR-TRANSFER-FAILED
+      (map-set donations
+        { campaign-id: id, donor: tx-sender }
+        { amount: (+ existing amount) }
       )
-
-      ;; Accumulate donor balance
-      (let (
-        (existing (default-to u0
-          (get amount (map-get? donations { campaign-id: id, donor: tx-sender }))
-        ))
-      )
-        (map-set donations
-          { campaign-id: id, donor: tx-sender }
-          { amount: (+ existing amount) }
-        )
-      )
-
-      ;; Update campaign running total
-      (map-set campaigns
-        { id: id }
-        (merge campaign { total-raised: (+ (get total-raised campaign) amount) })
-      )
-
-      (ok true)
     )
+
+    ;; Update campaign running total
+    (map-set campaigns
+      { id: id }
+      (merge campaign { total-raised: (+ (get total-raised campaign) amount) })
+    )
+
+    (ok true)
   )
 )
 
@@ -222,46 +220,43 @@
     (token <sip-010-trait>)
     (id    uint)
   )
-  (begin
-    (asserts! (and (> id u0) (<= id (var-get campaign-nonce))) ERR-NOT-FOUND)
-    (let (
-      (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
-      (raised   (get total-raised campaign))
-      (fee      (calculate-fee raised))
-      (net      (- raised fee))
+  (let (
+    (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
+    (raised   (get total-raised campaign))
+    (fee      (calculate-fee raised))
+    (net      (- raised fee))
+  )
+    (asserts! (is-eq (contract-of token) USDCX-CONTRACT)      ERR-TRANSFER-FAILED)
+    (asserts! (is-eq tx-sender (get creator campaign))         ERR-NOT-CREATOR)
+    (asserts! (not (get withdrawn campaign))                   ERR-ALREADY-WITHDRAWN)
+    (asserts! (>= block-height (get deadline campaign))        ERR-STILL-ACTIVE)
+    (asserts!
+      (or
+        (is-eq (get funding-model campaign) FLEXIBLE)
+        (>= raised (get goal campaign))
+      )
+      ERR-GOAL-NOT-REACHED
     )
-      (asserts! (is-eq (contract-of token) USDCX-CONTRACT)      ERR-TRANSFER-FAILED)
-      (asserts! (is-eq tx-sender (get creator campaign))         ERR-NOT-CREATOR)
-      (asserts! (not (get withdrawn campaign))                   ERR-ALREADY-WITHDRAWN)
-      (asserts! (>= block-height (get deadline campaign))        ERR-STILL-ACTIVE)
-      (asserts!
-        (or
-          (is-eq (get funding-model campaign) FLEXIBLE)
-          (>= raised (get goal campaign))
-        )
-        ERR-GOAL-NOT-REACHED
-      )
 
-      ;; Reentrancy guard: mark withdrawn BEFORE transfers
-      (map-set campaigns
-        { id: id }
-        (merge campaign { withdrawn: true, active: false })
-      )
-
-      ;; Transfer 2% fee to platform owner
-      (unwrap!
-        (as-contract (contract-call? token transfer fee tx-sender CONTRACT-OWNER none))
-        ERR-TRANSFER-FAILED
-      )
-
-      ;; Transfer 98% net to creator
-      (unwrap!
-        (as-contract (contract-call? token transfer net tx-sender (get creator campaign) none))
-        ERR-TRANSFER-FAILED
-      )
-
-      (ok true)
+    ;; Reentrancy guard: mark withdrawn BEFORE transfers
+    (map-set campaigns
+      { id: id }
+      (merge campaign { withdrawn: true, active: false })
     )
+
+    ;; Transfer 2% fee to platform owner
+    (unwrap!
+      (as-contract (contract-call? token transfer fee tx-sender CONTRACT-OWNER none))
+      ERR-TRANSFER-FAILED
+    )
+
+    ;; Transfer 98% net to creator
+    (unwrap!
+      (as-contract (contract-call? token transfer net tx-sender (get creator campaign) none))
+      ERR-TRANSFER-FAILED
+    )
+
+    (ok true)
   )
 )
 
@@ -281,30 +276,27 @@
     (token <sip-010-trait>)
     (id    uint)
   )
-  (begin
-    (asserts! (and (> id u0) (<= id (var-get campaign-nonce))) ERR-NOT-FOUND)
-    (let (
-      (campaign (unwrap! (map-get? campaigns { id: id })                            ERR-NOT-FOUND))
-      (donation (unwrap! (map-get? donations { campaign-id: id, donor: tx-sender }) ERR-NOT-DONOR))
-      (amount   (get amount donation))
+  (let (
+    (campaign (unwrap! (map-get? campaigns { id: id })                            ERR-NOT-FOUND))
+    (donation (unwrap! (map-get? donations { campaign-id: id, donor: tx-sender }) ERR-NOT-DONOR))
+    (amount   (get amount donation))
+  )
+    (asserts! (is-eq (contract-of token) USDCX-CONTRACT)              ERR-TRANSFER-FAILED)
+    (asserts! (is-eq (get funding-model campaign) ALL-OR-NOTHING)      ERR-REFUND-NOT-ALLOWED)
+    (asserts! (>= block-height (get deadline campaign))                ERR-REFUND-NOT-ALLOWED)
+    (asserts! (< (get total-raised campaign) (get goal campaign))      ERR-REFUND-NOT-ALLOWED)
+    (asserts! (> amount u0)                                            ERR-INVALID-AMOUNT)
+
+    ;; Delete record BEFORE transfer (double-claim guard)
+    (map-delete donations { campaign-id: id, donor: tx-sender })
+
+    ;; Return full donation to donor, no fee
+    (unwrap!
+      (as-contract (contract-call? token transfer amount tx-sender tx-sender none))
+      ERR-TRANSFER-FAILED
     )
-      (asserts! (is-eq (contract-of token) USDCX-CONTRACT)              ERR-TRANSFER-FAILED)
-      (asserts! (is-eq (get funding-model campaign) ALL-OR-NOTHING)      ERR-REFUND-NOT-ALLOWED)
-      (asserts! (>= block-height (get deadline campaign))                ERR-REFUND-NOT-ALLOWED)
-      (asserts! (< (get total-raised campaign) (get goal campaign))      ERR-REFUND-NOT-ALLOWED)
-      (asserts! (> amount u0)                                            ERR-INVALID-AMOUNT)
 
-      ;; Delete record BEFORE transfer (double-claim guard)
-      (map-delete donations { campaign-id: id, donor: tx-sender })
-
-      ;; Return full donation to donor, no fee
-      (unwrap!
-        (as-contract (contract-call? token transfer amount tx-sender tx-sender none))
-        ERR-TRANSFER-FAILED
-      )
-
-      (ok true)
-    )
+    (ok true)
   )
 )
 
@@ -317,14 +309,11 @@
 ;; Existing withdrawal and refund rights are preserved.
 
 (define-public (deactivate-campaign (id uint))
-  (begin
-    (asserts! (and (> id u0) (<= id (var-get campaign-nonce))) ERR-NOT-FOUND)
-    (let (
-      (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
-    )
-      (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-OWNER)
-      (map-set campaigns { id: id } (merge campaign { active: false }))
-      (ok true)
-    )
+  (let (
+    (campaign (unwrap! (map-get? campaigns { id: id }) ERR-NOT-FOUND))
+  )
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-OWNER)
+    (map-set campaigns { id: id } (merge campaign { active: false }))
+    (ok true)
   )
 )
