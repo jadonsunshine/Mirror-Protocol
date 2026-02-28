@@ -39,7 +39,19 @@ export function Hero() {
           <span className="inline-flex items-center flex-wrap justify-center gap-x-4">
             Settle on
 
-            {/* Icon Box */}
+           
+
+            <span
+              className={`bg-clip-text text-transparent transition-all duration-700 ${
+                isStacksMode
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600"
+                  : "bg-gradient-tush"
+              }`}
+            >
+              {isStacksMode ? "Stacks" : "Bitcoin"}
+            </span>
+
+             {/* Icon Box */}
             <span className="inline-flex align-middle perspective-1000">
               <div
                 className={`
@@ -62,16 +74,6 @@ export function Hero() {
                   />
                 )}
               </div>
-            </span>
-
-            <span
-              className={`bg-clip-text text-transparent transition-all duration-700 ${
-                isStacksMode
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600"
-                  : "bg-gradient-tush"
-              }`}
-            >
-              {isStacksMode ? "Stacks" : "Bitcoin"}
             </span>
           </span>
         </h1>
