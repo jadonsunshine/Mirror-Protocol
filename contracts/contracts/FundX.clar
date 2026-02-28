@@ -317,6 +317,38 @@
     )
 )
 
+(define-public (refund-donation (campaign-id uint))
+    (let
+        (
+            (campaign (unwrap! (map-get? campaigns campaign-id) err-not-found))
+            (deadline-passed (>= stacks-block-height (get deadline campaign)))
+            (goal-reached (>= (get total-raised campaign) (get goal campaign)))
+            (donation-amount (get-donation campaign-id tx-sender))
+        )
+        ;; Only donors who actually donated can get refund
+        (asserts! (> donation-amount u0) err-invalid-amount)
+        ;; Campaign must be ended and goal NOT reached
+        (asserts! (and deadline-passed (not goal-reached)) err-campaign-active)
+        ;; Campaign creator must not have withdrawn funds
+        (asserts! (not (get withdrawn campaign)) err-already-withdrawn)
+        
+        ;; Update donor's donation record (prevent double refund)
+        (map-set donations 
+            { campaign-id: campaign-id, donor: tx-sender }
+            u0
+        )
+        
+        ;; Send refund
+        (try! (as-contract (contract-call? usdcx-token transfer 
+            donation-amount
+            tx-sender
+            tx-sender    ;; Back to the donor
+            none)))
+        
+        (ok { refunded: donation-amount })
+    )
+)
+
 ;; ============================================
 ;; ADMIN FUNCTIONS
 ;; ============================================
