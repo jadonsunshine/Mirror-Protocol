@@ -29,7 +29,7 @@ export function CampaignCard({ id, title, description, raised, goal, image, curr
             src={image}
             alt={title}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-700"
+            className="object-contain group-hover:scale-105 transition-transform duration-700"
           />
         </div>
 
