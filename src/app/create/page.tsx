@@ -31,6 +31,7 @@ export interface CreateCampaignData {
   goal: string;
   duration: string;
   fundingModel: "0" | "1";
+  currency: "USDCx" | "STX"; // 🚨 NEW: The asset they want to raise
 }
 
 export default function CreateCampaign() {
@@ -57,6 +58,7 @@ export default function CreateCampaign() {
     goal: "10000",
     duration: "30",
     fundingModel: "0",
+    currency: "USDCx", // 🚨 NEW: Default to USDCx
   })
 
   const handleNext = () => setStep(step + 1)

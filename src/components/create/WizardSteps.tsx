@@ -181,19 +181,36 @@ export function WizardSteps({ step, formData, setFormData }: WizardProps) {
   }
 
   // STEP 6: FUNDING
-  if (step === 6) {
+ if (step === 6) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
          <div className="mb-6">
             <h2 className="text-2xl font-bold text-slate-900">Funding Goals</h2>
-            <p className="text-slate-500 text-sm">Set your target in USDCx and define your on-chain rules.</p>
+            <p className="text-slate-500 text-sm">Set your target and define your on-chain rules.</p>
          </div>
          
+         {/* 🚨 NEW: THE CURRENCY SELECTOR */}
+         <div className="space-y-2 mb-6">
+            <Label>Funding Asset</Label>
+            <Select onValueChange={(val) => setFormData({...formData, currency: val as "USDCx" | "STX"})} defaultValue={formData.currency}>
+               <SelectTrigger className="h-14 rounded-xl text-lg font-bold text-slate-700 bg-white border-slate-200 shadow-sm">
+                  <SelectValue />
+               </SelectTrigger>
+               <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl z-50">
+                  <SelectItem value="USDCx" className="text-sm font-bold text-blue-600 py-3 cursor-pointer">USDCx (Stablecoin)</SelectItem>
+                  <SelectItem value="STX" className="text-sm font-bold text-orange-500 py-3 cursor-pointer">STX (Native Stacks)</SelectItem>
+               </SelectContent>
+            </Select>
+         </div>
+
          <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
                <Label>Target Amount</Label>
                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-blue-600 text-sm">USDCx</span>
+                  {/* 🚨 DYNAMIC TICKER LABEL */}
+                  <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm ${formData.currency === 'USDCx' ? 'text-blue-600' : 'text-orange-500'}`}>
+                     {formData.currency}
+                  </span>
                   <Input type="number" className="pl-20 h-14 rounded-xl text-lg font-bold" value={formData.goal} onChange={(e) => setFormData({...formData, goal: e.target.value})} />
                </div>
             </div>
@@ -216,18 +233,24 @@ export function WizardSteps({ step, formData, setFormData }: WizardProps) {
             </Select>
          </div>
 
-         <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 flex gap-4 items-start mt-6">
+         {/* 🚨 DYNAMIC INFO BOX BASED ON CURRENCY */}
+         <div className={`p-6 rounded-xl border flex gap-4 items-start mt-6 ${formData.currency === 'USDCx' ? 'bg-blue-50 border-blue-100' : 'bg-orange-50 border-orange-100'}`}>
             <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
-               <Rocket className="w-5 h-5 text-blue-500" />
+               <Rocket className={`w-5 h-5 ${formData.currency === 'USDCx' ? 'text-blue-500' : 'text-orange-500'}`} />
             </div>
             <div>
-               <h4 className="font-bold text-blue-900">Why USDCx?</h4>
-               <p className="text-sm text-blue-700/80 mt-1">We use USDCx on Stacks to ensure your funding runway doesn't evaporate due to market volatility.</p>
+               <h4 className={`font-bold ${formData.currency === 'USDCx' ? 'text-blue-900' : 'text-orange-900'}`}>
+                  Raising in {formData.currency}
+               </h4>
+               <p className={`text-sm mt-1 ${formData.currency === 'USDCx' ? 'text-blue-700/80' : 'text-orange-700/80'}`}>
+                  {formData.currency === 'USDCx' 
+                     ? "USDCx ensures your funding runway doesn't evaporate due to market volatility." 
+                     : "STX is great for crypto-native communities, but involves price volatility risk."}
+               </p>
             </div>
          </div>
       </div>
     )
   }
-
   return null
 }
