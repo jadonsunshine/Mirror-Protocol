@@ -44,7 +44,27 @@ export default function DashboardPage() {
            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Capital Hub</h1>
         </div>
 
-      
+        {/* The Tabs (Creator vs Backer) */}
+        <Tabs defaultValue="campaigns" className="w-full">
+          <TabsList className="bg-transparent border-b border-slate-200 rounded-none w-full justify-start h-auto p-0 mb-8 no-scrollbar">
+            <TabsTrigger value="campaigns" className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-6 py-3 text-base font-bold">
+              My Campaigns
+            </TabsTrigger>
+            <TabsTrigger value="contributions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 px-6 py-3 text-base font-bold">
+              My Contributions
+            </TabsTrigger>
+          </TabsList>
+          
+  {/* Creator View: My Campaigns */}
+       <CreatorTab />
+          
+          {/* Backer View Placeholder */}
+          <TabsContent value="contributions">
+             <div className="bg-white p-12 text-center rounded-[2rem] border border-slate-100 shadow-sm">
+                <p className="text-slate-500 text-lg">We will build the Backer view here in Step 3!</p>
+             </div>
+          </TabsContent>
+        </Tabs>
 
         {/* The Premium Segmented Tabs */}
         <Tabs defaultValue="campaigns" className="w-full">
