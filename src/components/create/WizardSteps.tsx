@@ -15,91 +15,88 @@ interface WizardProps {
 }
 
 export function WizardSteps({ step, formData, setFormData }: WizardProps) {
-
   
-
-if (step === 1) {
+  // STEP 1: IDENTITY
+  if (step === 1) {
     return (
-      <div className="space-y-6 animate-in fade-in slide-in-from-left-4 duration-500">
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
          <div className="mb-6">
             <h2 className="text-2xl font-bold text-slate-900">Who is building this?</h2>
-            <p className="text-slate-500 text-sm">Backers fund people, not just code.</p>
+            <p className="text-slate-500 text-sm">Let's get your basic details and social proof.</p>
          </div>
-         <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+         <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-5">
               <div className="space-y-2">
                  <Label>Creator Name / Org</Label>
-                 <Input 
-                    placeholder="e.g. Satoshi Nakamoto" 
-                    className="h-12 rounded-xl"
-                    value={formData.creatorName}
-                    onChange={(e) => setFormData({...formData, creatorName: e.target.value})}
-                 />
+                 <Input placeholder="e.g. Satoshi Nakamoto" className="h-14 rounded-xl" value={formData.creatorName} onChange={(e) => setFormData({...formData, creatorName: e.target.value})} />
               </div>
               <div className="space-y-2">
                  <Label>Email (Private)</Label>
-                 <Input 
-                    placeholder="you@example.com" 
-                    className="h-12 rounded-xl"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                 />
+                 <Input placeholder="you@example.com" className="h-14 rounded-xl" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
               </div>
             </div>
-            
-            {/* 🚨 NEW: SOCIAL PROOF */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-5">
                <div className="space-y-2">
                   <Label>Twitter / X</Label>
-                  <Input placeholder="@username" className="h-12 rounded-xl" value={formData.twitter} onChange={(e) => setFormData({...formData, twitter: e.target.value})} />
+                  <Input placeholder="@username" className="h-14 rounded-xl" value={formData.twitter} onChange={(e) => setFormData({...formData, twitter: e.target.value})} />
                </div>
                <div className="space-y-2">
                   <Label>GitHub</Label>
-                  <Input placeholder="github.com/..." className="h-12 rounded-xl" value={formData.github} onChange={(e) => setFormData({...formData, github: e.target.value})} />
+                  <Input placeholder="github.com/..." className="h-14 rounded-xl" value={formData.github} onChange={(e) => setFormData({...formData, github: e.target.value})} />
                </div>
                <div className="space-y-2">
-                  <Label>Portfolio / Website</Label>
-                  <Input placeholder="https://..." className="h-12 rounded-xl" value={formData.portfolio} onChange={(e) => setFormData({...formData, portfolio: e.target.value})} />
+                  <Label>Website / Portfolio</Label>
+                  <Input placeholder="https://..." className="h-14 rounded-xl" value={formData.portfolio} onChange={(e) => setFormData({...formData, portfolio: e.target.value})} />
                </div>
-            </div>
-
-            <div className="space-y-2">
-               <Label>Creator Bio</Label>
-               <Textarea 
-                  placeholder="Tell us about your background and why you are the right person to build this..." 
-                  className="h-24 rounded-xl resize-none"
-                  value={formData.creatorBio}
-                  onChange={(e) => setFormData({...formData, creatorBio: e.target.value})}
-               />
             </div>
          </div>
       </div>
     )
   }
 
+  // STEP 2: BIO (Lots of room to type)
   if (step === 2) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900">Project Details</h2>
-            <p className="text-slate-500 text-sm">Define what you are building.</p>
+            <h2 className="text-2xl font-bold text-slate-900">Your Background</h2>
+            <p className="text-slate-500 text-sm">Why are you the right person or team to build this?</p>
          </div>
          <div className="space-y-4">
+            <Textarea 
+               placeholder="Tell us about your past experience, previous projects, and what drives you..." 
+               className="h-64 rounded-xl resize-none p-5 text-base leading-relaxed"
+               value={formData.creatorBio}
+               onChange={(e) => setFormData({...formData, creatorBio: e.target.value})}
+            />
+         </div>
+      </div>
+    )
+  }
+
+  // STEP 3: BASICS
+  if (step === 3) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+         <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-900">Project Basics</h2>
+            <p className="text-slate-500 text-sm">Define what you are building.</p>
+         </div>
+         <div className="space-y-6">
             <div className="space-y-2">
                <Label>Project Title</Label>
-               <Input 
-                  placeholder="e.g. Stacks DeFi Academy" 
-                  className="h-12 rounded-xl"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-               />
+               <Input placeholder="e.g. Stacks DeFi Academy" className="h-14 rounded-xl text-lg font-bold" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+               <Label>Short Tagline</Label>
+               <Input placeholder="Explain it in one catchy sentence..." className="h-14 rounded-xl" value={formData.tagline} onChange={(e) => setFormData({...formData, tagline: e.target.value})} />
+            </div>
+            <div className="grid md:grid-cols-2 gap-5 mt-4">
               <div className="space-y-2">
                  <Label>Category</Label>
                  <Select onValueChange={(val) => setFormData({...formData, category: val})} defaultValue={formData.category}>
-                    <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="h-14 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white">
                        <SelectItem value="DeFi">DeFi & Finance</SelectItem>
                        <SelectItem value="Mining">Mining & Infra</SelectItem>
                        <SelectItem value="Education">Education</SelectItem>
@@ -110,8 +107,8 @@ if (step === 1) {
               <div className="space-y-2">
                  <Label>Current Stage</Label>
                  <Select onValueChange={(val) => setFormData({...formData, projectStage: val})} defaultValue={formData.projectStage}>
-                    <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="h-14 rounded-xl"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-white">
                        <SelectItem value="Idea">Concept / Idea</SelectItem>
                        <SelectItem value="Prototype">Prototype / Alpha</SelectItem>
                        <SelectItem value="MVP">Live MVP</SelectItem>
@@ -124,229 +121,113 @@ if (step === 1) {
     )
   }
 
-
-// if (step === 3) {
-//     return (
-//       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-//          <div className="mb-6">
-//             <h2 className="text-2xl font-bold text-slate-900">The Pitch</h2>
-//             <p className="text-slate-500 text-sm">Tell your story and explain how the funds will be used.</p>
-//          </div>
-//          <div className="space-y-4">
-            
-//             <div className="grid md:grid-cols-2 gap-4">
-//                <div className="space-y-2">
-//                   <Label>Short Tagline</Label>
-//                   <Textarea 
-//                      placeholder="Explain it in one sentence..." 
-//                      className="h-20 rounded-xl resize-none"
-//                      value={formData.tagline}
-//                      onChange={(e) => setFormData({...formData, tagline: e.target.value})}
-//                   />
-//                </div>
-//                {/* 🚨 NEW: VIDEO LINK */}
-//                <div className="space-y-2">
-//                   <Label>Pitch Video URL (Optional)</Label>
-//                   <Textarea 
-//                      placeholder="YouTube or Vimeo link..." 
-//                      className="h-20 rounded-xl resize-none"
-//                      value={formData.videoUrl}
-//                      onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
-//                   />
-//                </div>
-//             </div>
-
-//             {/* 🚨 UPDATED: PROBLEM & SOLUTION */}
-//             <div className="space-y-2">
-//                <Label>The Problem & Solution</Label>
-//                <Textarea 
-//                   placeholder="What specific problem are you solving, and how does your product fix it?" 
-//                   className="min-h-[120px] rounded-xl resize-none p-4"
-//                   value={formData.description}
-//                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-//                />
-//             </div>
-
-//             {/* 🚨 NEW: BUDGET & ROADMAP */}
-//             <div className="grid md:grid-cols-2 gap-4">
-//                <div className="space-y-2">
-//                   <Label>Budget Breakdown</Label>
-//                   <Textarea 
-//                      placeholder="How will you spend the funds? (e.g., 60% Dev, 40% Servers)" 
-//                      className="h-24 rounded-xl resize-none"
-//                      value={formData.budgetBreakdown}
-//                      onChange={(e) => setFormData({...formData, budgetBreakdown: e.target.value})}
-//                   />
-//                </div>
-//                <div className="space-y-2">
-//                   <Label>Product Roadmap</Label>
-//                   <Textarea 
-//                      placeholder="What are your next 3 major milestones?" 
-//                      className="h-24 rounded-xl resize-none"
-//                      value={formData.roadmap}
-//                      onChange={(e) => setFormData({...formData, roadmap: e.target.value})}
-//                   />
-//                </div>
-//             </div>
-
-//          </div>
-//       </div>
-//     )
-//   }
-
-  if (step === 3) {
+  // STEP 4: THE STORY (Massive text box)
+  if (step === 4) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
          <div className="mb-4">
             <h2 className="text-2xl font-bold text-slate-900">The Pitch</h2>
-            <p className="text-slate-500 text-sm">Tell your story and explain how the funds will be used.</p>
+            <p className="text-slate-500 text-sm">Explain the problem and how your product fixes it.</p>
          </div>
          <div className="space-y-5">
-            
-            <div className="grid md:grid-cols-2 gap-5">
-               <div className="space-y-2">
-                  <Label>Short Tagline</Label>
-                  <Textarea 
-                     placeholder="Explain it in one sentence..." 
-                     className="h-14 rounded-xl resize-none"
-                     value={formData.tagline}
-                     onChange={(e) => setFormData({...formData, tagline: e.target.value})}
-                  />
-               </div>
-               <div className="space-y-2">
-                  <Label>Pitch Video URL (Optional)</Label>
-                  {/* Changed from Textarea to a clean Input for the link */}
-                  <Input 
-                     placeholder="https://youtube.com/..." 
-                     className="h-14 rounded-xl"
-                     value={formData.videoUrl}
-                     onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
-                  />
-               </div>
+            <div className="space-y-2">
+               <Label>Pitch Video URL (Optional but highly recommended)</Label>
+               <Input placeholder="https://youtube.com/..." className="h-14 rounded-xl" value={formData.videoUrl} onChange={(e) => setFormData({...formData, videoUrl: e.target.value})} />
             </div>
-
             <div className="space-y-2">
                <Label>The Problem & Solution</Label>
                <Textarea 
-                  placeholder="What specific problem are you solving, and how does your product fix it?" 
-                  className="min-h-[100px] rounded-xl resize-none p-4"
+                  placeholder="Dive deep. What specific problem are you solving? How does it work? Why now?" 
+                  className="h-64 rounded-xl resize-none p-5 text-base leading-relaxed"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                />
             </div>
-
-            <div className="grid md:grid-cols-2 gap-5">
-               <div className="space-y-2">
-                  <Label>Budget Breakdown</Label>
-                  <Textarea 
-                     placeholder="e.g., 60% Dev, 40% Servers" 
-                     className="h-20 rounded-xl resize-none"
-                     value={formData.budgetBreakdown}
-                     onChange={(e) => setFormData({...formData, budgetBreakdown: e.target.value})}
-                  />
-               </div>
-               <div className="space-y-2">
-                  <Label>Product Roadmap</Label>
-                  <Textarea 
-                     placeholder="What are your next 3 milestones?" 
-                     className="h-20 rounded-xl resize-none"
-                     value={formData.roadmap}
-                     onChange={(e) => setFormData({...formData, roadmap: e.target.value})}
-                  />
-               </div>
-            </div>
-
          </div>
       </div>
     )
   }
- if (step === 4) {
-   return (
-     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-       <div className="mb-6">
-         <h2 className="text-2xl font-bold text-slate-900">Funding Goals</h2>
-         <p className="text-slate-500 text-sm">
-           Set your target in USDCx (Stablecoin).
-         </p>
-       </div>
 
-       <div className="grid grid-cols-2 gap-6">
-         <div className="space-y-2">
-           <Label>Target Amount</Label>
-           <div className="relative">
-             <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-blue-600 text-sm">
-               USDCx
-             </span>
-             <Input
-               type="number"
-               className="pl-20 h-14 rounded-xl text-lg font-bold"
-               value={formData.goal}
-               onChange={(e) =>
-                 setFormData({ ...formData, goal: e.target.value })
-               }
-             />
-           </div>
+  // STEP 5: EXECUTION (Stacked big boxes)
+  if (step === 5) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+         <div className="mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">Execution Plan</h2>
+            <p className="text-slate-500 text-sm">Show backers exactly how you will spend their funds and hit your goals.</p>
          </div>
-         <div className="space-y-2">
-           <Label>Duration (Days)</Label>
-           <Input
-             type="number"
-             className="h-14 rounded-xl text-lg font-bold"
-             value={formData.duration}
-             onChange={(e) =>
-               setFormData({ ...formData, duration: e.target.value })
-             }
-           />
+         <div className="space-y-6">
+            <div className="space-y-2">
+               <Label>Budget Breakdown</Label>
+               <Textarea 
+                  placeholder="e.g., 60% Full-Stack Dev ($6,000), 20% Audits ($2,000), 20% Infrastructure ($2,000)..." 
+                  className="h-32 rounded-xl resize-none p-4"
+                  value={formData.budgetBreakdown}
+                  onChange={(e) => setFormData({...formData, budgetBreakdown: e.target.value})}
+               />
+            </div>
+            <div className="space-y-2">
+               <Label>Product Roadmap</Label>
+               <Textarea 
+                  placeholder="Month 1: Smart contracts finalized. Month 2: Testnet launch. Month 3: Mainnet deployment..." 
+                  className="h-32 rounded-xl resize-none p-4"
+                  value={formData.roadmap}
+                  onChange={(e) => setFormData({...formData, roadmap: e.target.value})}
+               />
+            </div>
          </div>
-       </div>
+      </div>
+    )
+  }
 
-     
-       <div className="space-y-2 mt-4">
-         <Label>Funding Model</Label>
-         <Select
-           onValueChange={(val) =>
-             setFormData({ ...formData, fundingModel: val as "0" | "1" })
-           }
-           defaultValue={formData.fundingModel}
-         >
-           {/* 1. Made the box a bit sleeker (h-12), text smaller (text-sm), and forced a solid white background */}
-           <SelectTrigger className="h-12 rounded-xl text-sm font-semibold text-slate-700 bg-white border-slate-200 shadow-sm">
-             <SelectValue />
-           </SelectTrigger>
-
-           {/* 2. Painted the dropdown solid white (bg-white) with a strong shadow so it's no longer see-through */}
-           <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl z-50">
-             <SelectItem
-               value="0"
-               className="text-sm font-medium text-slate-700 py-3 cursor-pointer"
-             >
-               Flexible (Keep what you raise)
-             </SelectItem>
-             <SelectItem
-               value="1"
-               className="text-sm font-medium text-slate-700 py-3 cursor-pointer"
-             >
-               All-or-Nothing (Refunds if goal fails)
-             </SelectItem>
-           </SelectContent>
-         </Select>
-       </div>
-
-       <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 flex gap-4 items-start mt-6">
-         <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
-           <Rocket className="w-5 h-5 text-blue-500" />
+  // STEP 6: FUNDING
+  if (step === 6) {
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
+         <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-900">Funding Goals</h2>
+            <p className="text-slate-500 text-sm">Set your target in USDCx and define your on-chain rules.</p>
          </div>
-         <div>
-           <h4 className="font-bold text-blue-900">Why USDCx?</h4>
-           <p className="text-sm text-blue-700/80 mt-1">
-             We use USDCx on Stacks to ensure your funding doesn't fluctuate
-             with market volatility.
-           </p>
+         
+         <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+               <Label>Target Amount</Label>
+               <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-blue-600 text-sm">USDCx</span>
+                  <Input type="number" className="pl-20 h-14 rounded-xl text-lg font-bold" value={formData.goal} onChange={(e) => setFormData({...formData, goal: e.target.value})} />
+               </div>
+            </div>
+            <div className="space-y-2">
+               <Label>Duration (Days)</Label>
+               <Input type="number" className="h-14 rounded-xl text-lg font-bold" value={formData.duration} onChange={(e) => setFormData({...formData, duration: e.target.value})} />
+            </div>
          </div>
-       </div>
-     </div>
-   );
- }
+
+         <div className="space-y-2 mt-6">
+            <Label>Funding Model</Label>
+            <Select onValueChange={(val) => setFormData({...formData, fundingModel: val as "0" | "1"})} defaultValue={formData.fundingModel}>
+               <SelectTrigger className="h-12 rounded-xl text-sm font-semibold text-slate-700 bg-white border-slate-200 shadow-sm">
+                  <SelectValue />
+               </SelectTrigger>
+               <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl z-50">
+                  <SelectItem value="0" className="text-sm font-medium text-slate-700 py-3 cursor-pointer">Flexible (Keep what you raise)</SelectItem>
+                  <SelectItem value="1" className="text-sm font-medium text-slate-700 py-3 cursor-pointer">All-or-Nothing (Refunds if goal fails)</SelectItem>
+               </SelectContent>
+            </Select>
+         </div>
+
+         <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 flex gap-4 items-start mt-6">
+            <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
+               <Rocket className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+               <h4 className="font-bold text-blue-900">Why USDCx?</h4>
+               <p className="text-sm text-blue-700/80 mt-1">We use USDCx on Stacks to ensure your funding runway doesn't evaporate due to market volatility.</p>
+            </div>
+         </div>
+      </div>
+    )
+  }
 
   return null
 }
